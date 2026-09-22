@@ -67,7 +67,7 @@ const seed=[
 ["T-517","البازوكا",1400],["T-2310","رافال 9 لتر",2200],["2-1","جهاز تعطير المنزل",2500],["2-10","جهاز التعطير الذكي للبيت والسيارة",985],
 ["10-7","فريسكا",14],["7-2","فريسكا مشكل",15],["10-5","فريسكا AROMA THERAPIE",16],["10-3","فريسكا",17],["10-6","فريسكا",17],["7-3","مشكل الوان",20],["10-1","فريسكا الوان AROMA THERAPIE",20]
 ];
-let items=seed.map(x=>({code:x[0],name:x[1],qty:0,price:x[2]})); const $=id=>document.getElementById(id);
+let items=[]; const $=id=>document.getElementById(id);
 $("invoiceNo").value=String(Date.now()).slice(-6);
 function add(item=["","","",0]){items.push({code:item[0]||"",name:item[1]||"",qty:item[2]||1,price:item[3]||0});render()}
 function esc(x){return String(x??"").replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]))}

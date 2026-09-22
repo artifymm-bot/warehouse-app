@@ -34,10 +34,10 @@ main{padding:15px}.panel{background:var(--card);border:1px solid var(--line);bor
 <button class="btn whatsapp" id="share">🟢 إرسال إلى واتساب</button>
 <button class="btn secondary" id="clear">مسح الكل</button>
 </div>
-<p class="hint">اضغط على خانة الصنف واختر المنتج من القائمة. يمكنك تعديل الكمية والسعر، وسيتم تنبيهك إذا أضفت نفس الصنف مرتين.</p>
+<p class="hint">اضغط على خانة «اختيار الصنف» ثم اختر المنتج من القائمة. يمكنك تعديل الكمية والسعر، وسيتم تنبيهك إذا أضفت نفس الصنف مرتين.</p>
 </section>
 <section class="panel no-print">
-<div class="tablewrap"><table><thead><tr><th>كود الصنف</th><th>اسم الصنف</th><th>الكمية</th><th>السعر</th><th>الإجمالي</th><th></th></tr></thead><tbody id="rows"></tbody></table></div>
+<div class="tablewrap"><table><thead><tr><th>كود الصنف</th><th>اختيار الصنف</th><th>الكمية</th><th>السعر</th><th>الإجمالي</th><th></th></tr></thead><tbody id="rows"></tbody></table></div>
 <div class="total"><span>الإجمالي الكلي</span><span id="grand">0.00</span></div>
 </section>
 <section class="panel invoice-panel">
@@ -72,7 +72,7 @@ $("invoiceNo").value=String(Date.now()).slice(-6);
 function add(item=["","","",0]){items.push({code:item[0]||"",name:item[1]||"",qty:item[2]||1,price:item[3]||0});render()}
 function esc(x){return String(x??"").replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]))}
 function productOptions(selected){
- return '<option value="">اختر الصنف من القائمة...</option>'+seed.map((x,i)=>'<option value="'+i+'" '+(selected===i?'selected':'')+'>'+esc(x[0]+' — '+x[1])+'</option>').join("");
+ return '<option value="">▼ اضغط هنا لاختيار الصنف</option>'+seed.map((x,i)=>'<option value="'+i+'" '+(selected===i?'selected':'')+'>'+esc(x[0]+' — '+x[1])+'</option>').join("");
 }
 function render(){
  $("rows").innerHTML=items.map((x,i)=>{

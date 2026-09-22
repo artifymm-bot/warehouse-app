@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="ar" dir="rtl"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#15110d"><title>الأصيل - فاتورة المباخر</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<style>
+:root{--bg:#f5f1eb;--card:#fff;--text:#241b14;--muted:#74685d;--accent:#b94d20;--line:#ded5cb}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Cairo,Arial,sans-serif}
+header{background:#15110d;color:#fff;padding:15px;position:sticky;top:0;z-index:10}header .wrap,main{max-width:1050px;margin:auto}
+header h1{margin:0;font-size:20px}.sub{font-size:12px;color:#cdbfae}
+main{padding:15px}.panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:15px;margin-bottom:14px}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap}.btn{border:0;border-radius:9px;padding:11px 14px;background:var(--accent);color:white;font-family:inherit;font-weight:700;cursor:pointer}.btn.secondary{background:#eee7df;color:#3a2d23}.btn.dark{background:#241b15}
+.fields{display:grid;grid-template-columns:1fr 1fr;gap:10px}.field label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}.field input{width:100%;padding:10px;border:1px solid var(--line);border-radius:8px;font:inherit}
+.tablewrap{overflow:auto}table{width:100%;border-collapse:collapse;min-width:760px}th,td{border-bottom:1px solid var(--line);padding:8px;text-align:right}th{background:#f1eae2;font-size:13px}td input,td select{width:100%;padding:8px;border:1px solid var(--line);border-radius:7px;font:inherit;background:white}.num{direction:ltr;text-align:center}.remove{border:0;background:#f6e1db;color:#a23c1d;border-radius:7px;padding:7px 10px;cursor:pointer}
+.total{display:flex;justify-content:space-between;font-size:19px;font-weight:800;padding-top:10px}.hint{font-size:12px;color:var(--muted)}
+.invoice{background:white;color:#111;padding:28px;max-width:900px;margin:auto}.invoice h2{text-align:center;margin:0 0 4px}.invoice .meta{display:flex;justify-content:space-between;border-bottom:2px solid #222;padding:10px 0 14px;margin-bottom:14px}.invoice table{min-width:0}.invoice th{background:#eee;color:#111}.invoice .sum{text-align:left;font-weight:800;font-size:18px;margin-top:15px}
+@media(max-width:600px){.fields{grid-template-columns:1fr}.toolbar .btn{flex:1}.panel{padding:11px}}
+@media print{body{background:#fff}.no-print,header,main>.panel:not(.invoice-panel){display:none!important}.invoice-panel{border:0;padding:0;margin:0}.invoice{display:block!important;max-width:none;padding:10mm}.invoice table{font-size:12px}.invoice th,.invoice td{padding:6px}}
+</style></head>
+<body>
+<header><div class="wrap"><h1>الأصيل — نظام فاتورة المباخر</h1><div class="sub">تعديل الصنف والكود والكمية والسعر ثم تصدير ومشاركة PDF</div></div></header>
+<main>
+<section class="panel no-print">
+<div class="fields">
+<div class="field"><label>اسم العميل</label><input id="customer" placeholder="اسم العميل"></div>
+<div class="field"><label>رقم الفاتورة</label><input id="invoiceNo"></div>
+</div>
+</section>
+<section class="panel no-print">
+<div class="toolbar">
+<button class="btn" id="add">+ إضافة صنف</button>
+<button class="btn dark" id="pdf">📄 تصدير PDF</button>
+<button class="btn secondary" id="share">📤 مشاركة الفاتورة</button>
+<button class="btn secondary" id="clear">مسح الكل</button>
+</div>
+<p class="hint">يمكنك تغيير الكود والاسم والكمية والسعر بحرية. الإجمالي يُحسب تلقائيًا.</p>
+</section>
+<section class="panel no-print">
+<div class="tablewrap"><table><thead><tr><th>كود الصنف</th><th>اسم الصنف</th><th>الكمية</th><th>السعر</th><th>الإجمالي</th><th></th></tr></thead><tbody id="rows"></tbody></table></div>
+<div class="total"><span>الإجمالي الكلي</span><span id="grand">0.00</span></div>
+</section>
+<section class="panel invoice-panel">
+<div id="invoice" class="invoice"></div>
+</section>
+</main>
+<script>
+const seed=[
+["1208-17","مبخرة فحم",90],["1208-11","مبخرة فحم",100],["1208-8","مبخرة فحم صغير",100],
+["1208-3","مبخرة فحم مأخذ شكل",125],["801-23","مبخرة بورسلين باقعدة",125],
+["721-24","مبخرة فحم",135],["721-3","مبخرة فحم صغير",135],["806-5","مبخرة فحم",145],
+["806-7","مبخرة فحم",145],["806-6","مبخرة فحم",145],["106-7","مبخرة فحم",180],
+["884-27","مبخرة فحم",180],["884-9","مبخرة فحم",180],["884-18","مبخرة فحم",180],
+["884-10","مبخرة فحم",180],["184-4","مبخرة فحم",180],["106-5","مبخرة بورسلين ريشة",200],
+["106-9","مبخرة فحم",250],["481-6","مبخرة فحم",250],["142-1","طقم صواني فحم دائري",575],
+["142-2","طقم صواني فحم مربع",575],["105-8","مبخرة فحم ماسك شكل",20],
+["481-11","مبخرة كهربا كورة صغير",185],["481-12","مبخرة كهربا ريشة",200],
+["481-25","مبخرة كهربا كورة ريشة",225],["106-13","مبخرة كهربا",285],
+["481-14","مبخرة كهربا",335],["481-15","مبخرة كهربا",335],["481-18","مبخرة كهربا",335],
+["481-17","مبخرة كهربا",350],["481-19","مبخرة كهربا",385],["481-21","مبخرة كهربا",385],
+["481-27","مبخرة كهربا",385],["361-20","مبخرة كهربا",385],["368-1","مبخرة فحم",450],
+["262-1","مبخرة كهربا",520],["241-22","مبخرة كهربا",520],["121-28","مبخرة شحن إلكترونية",550]
+];
+let items=[]; const $=id=>document.getElementById(id);
+$("invoiceNo").value=String(Date.now()).slice(-6);
+function add(item=["","","",0]){items.push({code:item[0]||"",name:item[1]||"",qty:item[2]||1,price:item[3]||0});render()}
+function esc(x){return String(x??"").replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]))}
+function render(){
+ $("rows").innerHTML=items.map((x,i)=>'<tr><td><input value="'+esc(x.code)+'" data-i="'+i+'" data-k="code"></td><td><input value="'+esc(x.name)+'" data-i="'+i+'" data-k="name"></td><td><input class="num" type="number" min="0" value="'+x.qty+'" data-i="'+i+'" data-k="qty"></td><td><input class="num" type="number" min="0" step="0.01" value="'+x.price+'" data-i="'+i+'" data-k="price"></td><td class="num">'+(x.qty*x.price).toFixed(2)+'</td><td><button class="remove" data-del="'+i+'">×</button></td></tr>').join("");
+ document.querySelectorAll("[data-k]").forEach(e=>e.oninput=()=>{items[e.dataset.i][e.dataset.k]=e.dataset.k==="code"||e.dataset.k==="name"?e.value:Number(e.value)||0;renderInvoice()});
+ document.querySelectorAll("[data-del]").forEach(e=>e.onclick=()=>{items.splice(Number(e.dataset.del),1);render()});
+ $("grand").textContent=items.reduce((s,x)=>s+x.qty*x.price,0).toFixed(2);renderInvoice()
+}
+function renderInvoice(){
+ const total=items.reduce((s,x)=>s+x.qty*x.price,0);
+ $("invoice").innerHTML='<h2>فاتورة</h2><div class="meta"><span>العميل: <b>'+esc($("customer").value||"—")+'</b></span><span>رقم الفاتورة: <b>'+esc($("invoiceNo").value)+'</b><br>التاريخ: '+new Date().toLocaleDateString("ar-EG")+'</span></div><table><thead><tr><th>كود الصنف</th><th>اسم الصنف</th><th>الكمية</th><th>السعر</th><th>الإجمالي</th></tr></thead><tbody>'+items.map(x=>'<tr><td>'+esc(x.code)+'</td><td>'+esc(x.name)+'</td><td>'+x.qty+'</td><td>'+Number(x.price).toFixed(2)+'</td><td>'+Number(x.qty*x.price).toFixed(2)+'</td></tr>').join("")+'</tbody></table><div class="sum">الإجمالي الكلي: '+total.toFixed(2)+'</div>'}
+$("add").onclick=()=>add(["","","",0]);
+$("customer").oninput=renderInvoice;$("invoiceNo").oninput=renderInvoice;
+$("clear").onclick=()=>{if(confirm("مسح جميع الأصناف؟")){items=[];render()}};
+$("pdf").onclick=async()=>{renderInvoice();const el=$("invoice");await html2pdf().set({margin:8,filename:"فاتورة-"+$("invoiceNo").value+".pdf",image:{type:"jpeg",quality:.98},html2canvas:{scale:2,useCORS:true},jsPDF:{unit:"mm",format:"a4",orientation:"portrait"}}).from(el).save()};
+$("share").onclick=async()=>{renderInvoice();const el=$("invoice");try{const blob=await html2pdf().set({margin:8,filename:"فاتورة-"+$("invoiceNo").value+".pdf",html2canvas:{scale:2,useCORS:true},jsPDF:{unit:"mm",format:"a4"}}).from(el).outputPdf("blob");const file=new File([blob],"فاتورة-"+$("invoiceNo").value+".pdf",{type:"application/pdf"});if(navigator.canShare&&navigator.canShare({files:[file]}))await navigator.share({title:"فاتورة الأصيل",text:"فاتورة طلبية",files:[file]});else{const u=URL.createObjectURL(blob);const a=document.createElement("a");a.href=u;a.download=file.name;a.click();URL.revokeObjectURL(u);alert("تم تجهيز PDF؛ يمكنك مشاركته من ملفات الهاتف.")}}catch(e){alert("تعذر إنشاء/مشاركة PDF: "+e.message)}};
+seed.forEach(x=>add([x[0],x[1],0,x[2]])); items=[]; render();
+</script></body></html>

@@ -19,7 +19,7 @@ main{padding:15px}.panel{background:var(--card);border:1px solid var(--line);bor
 @media print{body{background:#fff}.no-print,header,main>.panel:not(.invoice-panel){display:none!important}.invoice-panel{border:0;padding:0;margin:0}.invoice{display:block!important;max-width:none;padding:10mm}.invoice table{font-size:12px}.invoice th,.invoice td{padding:6px}}
 </style></head>
 <body>
-<header><div class="wrap"><h1>الأصيل — نظام فاتورة المباخر</h1><div class="sub">تعديل الصنف والكود والكمية والسعر ثم تصدير ومشاركة PDF</div></div></header>
+<header><div class="wrap"><h1>الأصيل — نظام فاتورة المباخر</h1><div class="sub">قائمة الأصناف والأسعار — تعديل الكود والكمية والسعر ثم تصدير ومشاركة PDF</div></div></header>
 <main>
 <section class="panel no-print">
 <div class="fields">
@@ -34,7 +34,7 @@ main{padding:15px}.panel{background:var(--card);border:1px solid var(--line);bor
 <button class="btn secondary" id="share">📤 مشاركة الفاتورة</button>
 <button class="btn secondary" id="clear">مسح الكل</button>
 </div>
-<p class="hint">يمكنك تغيير الكود والاسم والكمية والسعر بحرية. الإجمالي يُحسب تلقائيًا.</p>
+<p class="hint">الأصناف الواردة في قائمة أسعار الأصيل موجودة مسبقًا. غيّر الكمية والسعر حسب الطلب، والإجمالي يُحسب تلقائيًا.</p>
 </section>
 <section class="panel no-print">
 <div class="tablewrap"><table><thead><tr><th>كود الصنف</th><th>اسم الصنف</th><th>الكمية</th><th>السعر</th><th>الإجمالي</th><th></th></tr></thead><tbody id="rows"></tbody></table></div>
@@ -61,7 +61,7 @@ const seed=[
 ["481-27","مبخرة كهربا",385],["361-20","مبخرة كهربا",385],["368-1","مبخرة فحم",450],
 ["262-1","مبخرة كهربا",520],["241-22","مبخرة كهربا",520],["121-28","مبخرة شحن إلكترونية",550]
 ];
-let items=[]; const $=id=>document.getElementById(id);
+let items=seed.map(x=>({code:x[0],name:x[1],qty:0,price:x[2]})); const $=id=>document.getElementById(id);
 $("invoiceNo").value=String(Date.now()).slice(-6);
 function add(item=["","","",0]){items.push({code:item[0]||"",name:item[1]||"",qty:item[2]||1,price:item[3]||0});render()}
 function esc(x){return String(x??"").replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]))}
@@ -73,11 +73,12 @@ function render(){
 }
 function renderInvoice(){
  const total=items.reduce((s,x)=>s+x.qty*x.price,0);
- $("invoice").innerHTML='<h2>فاتورة</h2><div class="meta"><span>العميل: <b>'+esc($("customer").value||"—")+'</b></span><span>رقم الفاتورة: <b>'+esc($("invoiceNo").value)+'</b><br>التاريخ: '+new Date().toLocaleDateString("ar-EG")+'</span></div><table><thead><tr><th>كود الصنف</th><th>اسم الصنف</th><th>الكمية</th><th>السعر</th><th>الإجمالي</th></tr></thead><tbody>'+items.map(x=>'<tr><td>'+esc(x.code)+'</td><td>'+esc(x.name)+'</td><td>'+x.qty+'</td><td>'+Number(x.price).toFixed(2)+'</td><td>'+Number(x.qty*x.price).toFixed(2)+'</td></tr>').join("")+'</tbody></table><div class="sum">الإجمالي الكلي: '+total.toFixed(2)+'</div>'}
+ $("invoice").innerHTML='<h2>فاتورة</h2><div class="meta"><span>العميل: <b>'+esc($("customer").value||"—")+'</b></span><span>رقم الفاتورة: <b>'+esc($("invoiceNo").value)+'</b><br>التاريخ: '+new Date().toLocaleDateString("ar-EG")+'</span></div><table><thead><tr><th>كود الصنف</th><th>اسم الصنف</th><th>الكمية</th><th>السعر</th><th>الإجمالي</th></tr></thead><tbody>'+items.filter(x=>x.qty>0).map(x=>'<tr><td>'+esc(x.code)+'</td><td>'+esc(x.name)+'</td><td>'+x.qty+'</td><td>'+Number(x.price).toFixed(2)+'</td><td>'+Number(x.qty*x.price).toFixed(2)+'</td></tr>').join("")+'</tbody></table><div class="sum">الإجمالي الكلي: '+total.toFixed(2)+'</div>'
+}
 $("add").onclick=()=>add(["","","",0]);
 $("customer").oninput=renderInvoice;$("invoiceNo").oninput=renderInvoice;
 $("clear").onclick=()=>{if(confirm("مسح جميع الأصناف؟")){items=[];render()}};
 $("pdf").onclick=async()=>{renderInvoice();const el=$("invoice");await html2pdf().set({margin:8,filename:"فاتورة-"+$("invoiceNo").value+".pdf",image:{type:"jpeg",quality:.98},html2canvas:{scale:2,useCORS:true},jsPDF:{unit:"mm",format:"a4",orientation:"portrait"}}).from(el).save()};
 $("share").onclick=async()=>{renderInvoice();const el=$("invoice");try{const blob=await html2pdf().set({margin:8,filename:"فاتورة-"+$("invoiceNo").value+".pdf",html2canvas:{scale:2,useCORS:true},jsPDF:{unit:"mm",format:"a4"}}).from(el).outputPdf("blob");const file=new File([blob],"فاتورة-"+$("invoiceNo").value+".pdf",{type:"application/pdf"});if(navigator.canShare&&navigator.canShare({files:[file]}))await navigator.share({title:"فاتورة الأصيل",text:"فاتورة طلبية",files:[file]});else{const u=URL.createObjectURL(blob);const a=document.createElement("a");a.href=u;a.download=file.name;a.click();URL.revokeObjectURL(u);alert("تم تجهيز PDF؛ يمكنك مشاركته من ملفات الهاتف.")}}catch(e){alert("تعذر إنشاء/مشاركة PDF: "+e.message)}};
-seed.forEach(x=>add([x[0],x[1],0,x[2]])); items=[]; render();
+render();
 </script></body></html>

@@ -67,7 +67,7 @@ function add(item=["","","",0]){items.push({code:item[0]||"",name:item[1]||"",qt
 function esc(x){return String(x??"").replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]))}
 function render(){
  $("rows").innerHTML=items.map((x,i)=>'<tr><td><input value="'+esc(x.code)+'" data-i="'+i+'" data-k="code"></td><td><input value="'+esc(x.name)+'" data-i="'+i+'" data-k="name"></td><td><input class="num" type="number" min="0" value="'+x.qty+'" data-i="'+i+'" data-k="qty"></td><td><input class="num" type="number" min="0" step="0.01" value="'+x.price+'" data-i="'+i+'" data-k="price"></td><td class="num">'+(x.qty*x.price).toFixed(2)+'</td><td><button class="remove" data-del="'+i+'">×</button></td></tr>').join("");
- document.querySelectorAll("[data-k]").forEach(e=>e.oninput=()=>{items[e.dataset.i][e.dataset.k]=e.dataset.k==="code"||e.dataset.k==="name"?e.value:Number(e.value)||0;renderInvoice()});
+ document.querySelectorAll("[data-k]").forEach(e=>e.oninput=()=>{const i=Number(e.dataset.i),k=e.dataset.k;items[i][k]=k==="code"||k==="name"?e.value:Number(e.value)||0;const row=e.closest("tr");if(row){const totalCell=row.children[4];if(totalCell)totalCell.textContent=(items[i].qty*items[i].price).toFixed(2)}$("grand").textContent=items.reduce((s,x)=>s+x.qty*x.price,0).toFixed(2);renderInvoice()});
  document.querySelectorAll("[data-del]").forEach(e=>e.onclick=()=>{items.splice(Number(e.dataset.del),1);render()});
  $("grand").textContent=items.reduce((s,x)=>s+x.qty*x.price,0).toFixed(2);renderInvoice()
 }

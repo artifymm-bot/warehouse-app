@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="ar" dir="rtl"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#15110d"><title>الأصيل - فاتورة المباخر</title>
+<meta name="theme-color" content="#15110d"><title>الأصيل - نظام استخراج فاتورة على السريع</title>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <style>
@@ -19,7 +19,7 @@ main{padding:15px}.panel{background:var(--card);border:1px solid var(--line);bor
 @media print{body{background:#fff}.no-print,header,main>.panel:not(.invoice-panel){display:none!important}.invoice-panel{border:0;padding:0;margin:0}.invoice{display:block!important;max-width:none;padding:10mm}.invoice table{font-size:12px}.invoice th,.invoice td{padding:6px}}
 </style></head>
 <body>
-<header><div class="wrap"><h1>الأصيل — نظام فاتورة المباخر</h1><div class="sub">قائمة الأصناف والأسعار — تعديل الكود والكمية والسعر ثم تصدير ومشاركة PDF</div><div class="developer-program">برمجة وتطوير محمد حسني احمد</div></div></header>
+<header><div class="wrap"><h1>الأصيل — نظام استخراج فاتورة على السريع</h1><div class="sub">قائمة الأصناف والأسعار — تعديل الكود والكمية والسعر ثم تصدير ومشاركة PDF</div><div class="developer-program">برمجة وتطوير محمد حسني احمد</div></div></header>
 <main>
 <section class="panel no-print">
 <div class="fields">
@@ -80,7 +80,7 @@ function render(){
    const duplicate=selected>=0 && items.some((y,j)=>j!==i&&y.code===x.code&&y.name===x.name);
    return '<tr class="'+(duplicate?'duplicate':'')+'"><td><b>'+esc(x.code||"—")+'</b></td><td><select class="product-select" data-i="'+i+'" data-k="product">'+productOptions(selected)+'</select>'+(duplicate?'<div class="duplicate-msg">⚠️ هذا الصنف مضاف بالفعل</div>':'')+'</td><td><input class="num" type="number" min="0" value="'+x.qty+'" data-i="'+i+'" data-k="qty"></td><td><input class="num" type="number" min="0" step="0.01" value="'+x.price+'" data-i="'+i+'" data-k="price"></td><td class="num">'+(x.qty*x.price).toFixed(2)+'</td><td><button class="remove" data-del="'+i+'">×</button></td></tr>';
  }).join("");
- document.querySelectorAll("[data-k]").forEach(e=>e.oninput=()=>{
+ document.querySelectorAll("[data-k]").forEach(e=>e.addEventListener(e.tagName==="SELECT"?"change":"input",()=>{
    const i=Number(e.dataset.i),k=e.dataset.k;
    if(k==="product"){
      const p=seed[Number(e.value)];

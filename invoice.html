@@ -72,7 +72,7 @@ $("invoiceNo").value=String(Date.now()).slice(-6);
 function add(item=["","","",0]){items.push({code:item[0]||"",name:item[1]||"",qty:item[2]||1,price:item[3]||0});render()}
 function esc(x){return String(x??"").replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]))}
 function productOptions(selected){
- return '<option value="">اختر الصنف من القائمة...</option>'+seed.map((x,i)=>'<option value="'+i+'" '+(selected===i?'selected':'')+'>'+esc(x[0]+' — '+x[1]+' — '+x[2])+'</option>').join("");
+ return '<option value="">اختر الصنف من القائمة...</option>'+seed.map((x,i)=>'<option value="'+i+'" '+(selected===i?'selected':'')+'>'+esc(x[0]+' — '+x[1])+'</option>').join("");
 }
 function render(){
  $("rows").innerHTML=items.map((x,i)=>{
